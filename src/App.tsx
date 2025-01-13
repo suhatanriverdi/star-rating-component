@@ -2,7 +2,7 @@ import StarRating from "./StarRating.tsx";
 
 export default function App() {
   return (
-    <div className="flex h-screen w-screen">
+    <div className="flex h-screen w-screen bg-gray-950">
       <StarRating
         isHalfRatingEnabled={true}
         initialRating={0}

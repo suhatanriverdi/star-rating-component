@@ -16,7 +16,6 @@ export const EmptyStar: React.FC<StarProps> = ({
 
   return (
     <svg
-      className="p-2"
       xmlns="http://www.w3.org/2000/svg"
       width={size}
       height={size}
@@ -36,7 +35,6 @@ export const HalfFilledStar: React.FC<StarProps> = ({
 
   return (
     <svg
-      className="p-2"
       xmlns="http://www.w3.org/2000/svg"
       width={size}
       height={size}
@@ -56,7 +54,6 @@ export const FilledStar: React.FC<StarProps> = ({
 
   return (
     <svg
-      className="p-2"
       xmlns="http://www.w3.org/2000/svg"
       width={size}
       height={size}

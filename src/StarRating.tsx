@@ -1,5 +1,5 @@
-import {EmptyStar, FilledStar, HalfFilledStar} from "./ui/stars.tsx";
-import React, {useCallback, useState} from "react";
+import { EmptyStar, FilledStar, HalfFilledStar } from "./ui/stars.tsx";
+import React, { useCallback, useState } from "react";
 
 export type StarRatingProps = {
   /**
@@ -42,11 +42,11 @@ export type StarRatingProps = {
  * İnsanlart giremesien range dışındaysa
  * */
 export default function StarRating({
-                                     starsLength = 5,
-                                     isHalfRatingEnabled = false,
-                                     initialRating = 0,
-                                     dimension,
-                                   }: StarRatingProps) {
+  starsLength = 5,
+  isHalfRatingEnabled = false,
+  initialRating = 0,
+  dimension,
+}: StarRatingProps) {
   // Return the requested star element based on the given starID
   // 0: Empty
   // 1: Half Filled
@@ -55,11 +55,11 @@ export default function StarRating({
     (starID: number) => {
       switch (starID) {
         case 1:
-          return <HalfFilledStar dimension={dimension}/>;
+          return <HalfFilledStar dimension={dimension} />;
         case 2:
-          return <FilledStar dimension={dimension}/>;
+          return <FilledStar dimension={dimension} />;
         default:
-          return <EmptyStar dimension={dimension}/>;
+          return <EmptyStar dimension={dimension} />;
       }
     },
     [dimension]
@@ -85,10 +85,10 @@ export default function StarRating({
     const hasHalfFilledStar = untilIndex - flooredUntilIndex > 0;
 
     const newStarsState: number[] = Array.from(
-      {length: starsLength},
+      { length: starsLength },
       (_, index) => {
         return index < flooredUntilIndex ? 2 : 0;
-      },
+      }
     );
 
     // Handle the state of the right most half clicked star if it exists so
@@ -107,13 +107,14 @@ export default function StarRating({
   const resetStarsState = () => {
     const newEmptyStarsState: number[] = Array(starsLength).fill(0);
     updateStarsState(newEmptyStarsState);
+    setPreviousStarsState(newEmptyStarsState);
   };
 
   const updateStarsState = (newStarsState: number[]) =>
     setStarsState(newStarsState);
 
   const updateLastClickedUntilIndexState = (
-    newLastClickedUntilIndexState: number | null,
+    newLastClickedUntilIndexState: number | null
   ) => setLastClickedUntilIndexState(newLastClickedUntilIndexState);
 
   const handleStarsStateUpdate = (untilIndex: number) => {
@@ -132,7 +133,7 @@ export default function StarRating({
 
   const getUntilIndex = (
     event: React.MouseEvent<HTMLElement>,
-    index: number,
+    index: number
   ) => {
     const hasHalfFilledStar = isHalfRatingEnabled && isHalfClicked(event);
     return hasHalfFilledStar ? index - 0.5 : index;
@@ -149,31 +150,29 @@ export default function StarRating({
     setLastSide(null);
   };
 
-  // const handleMouseMove = (
-  //   event: React.MouseEvent<HTMLElement>,
-  //   index: number,
-  // ) => {
-  //   const untilIndex = getUntilIndex(event, index);
-  //   handleStarsStateUpdate(untilIndex);
-  //   console.log("enter", untilIndex);
-  // };
-
   const [lastSide, setLastSide] = useState<"L" | "R" | null>(null);
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
+  const handleMouseMove = (
+    event: React.MouseEvent<HTMLDivElement>,
+    index: number
+  ) => {
+
+    if (!isHalfRatingEnabled) {
+      updateStarsState(createNewStarsState(index));
+      return;
+    }
+    
     const element = event.currentTarget as HTMLDivElement;
     const rect = element.getBoundingClientRect();
     const midpoint = rect.width / 2;
     const isLeftSide = event.clientX < rect.left + midpoint;
 
-    let untilIndex: number = index;
     if (isLeftSide && lastSide !== "L") {
-      untilIndex = index - 0.5;
-      console.log("Left", untilIndex);
-      updateStarsState(createNewStarsState(untilIndex));
+      console.log("Left", index - 0.5);
+      updateStarsState(createNewStarsState(index - 0.5));
       setLastSide("L");
     } else if (!isLeftSide && lastSide !== "R") {
-      console.log("Right", untilIndex);
-      updateStarsState(createNewStarsState(untilIndex));
+      console.log("Right", index);
+      updateStarsState(createNewStarsState(index));
       setLastSide("R");
     }
   };
