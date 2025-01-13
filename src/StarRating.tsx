@@ -1,6 +1,5 @@
-import { EmptyStar, FilledStar, HalfFilledStar } from "./ui/stars.tsx";
-import React, { useState } from "react";
-import { debounce } from "lodash";
+import {EmptyStar, FilledStar, HalfFilledStar} from "./ui/stars.tsx";
+import React, {useCallback, useState} from "react";
 
 export type StarRatingProps = {
   /**
@@ -42,27 +41,29 @@ export type StarRatingProps = {
  * Buna bir düzeltme getir sınırlama koy
  * İnsanlart giremesien range dışındaysa
  * */
-
 export default function StarRating({
-  starsLength = 5,
-  isHalfRatingEnabled = false,
-  initialRating = 0,
-  dimension,
-}: StarRatingProps) {
+                                     starsLength = 5,
+                                     isHalfRatingEnabled = false,
+                                     initialRating = 0,
+                                     dimension,
+                                   }: StarRatingProps) {
   // Return the requested star element based on the given starID
   // 0: Empty
   // 1: Half Filled
   // 2: Filled
-  const getStarSVGs = (starID: number) => {
-    switch (starID) {
-      case 1:
-        return <HalfFilledStar dimension={dimension} />;
-      case 2:
-        return <FilledStar dimension={dimension} />;
-      default:
-        return <EmptyStar dimension={dimension} />;
-    }
-  };
+  const getStarSVGs = useCallback(
+    (starID: number) => {
+      switch (starID) {
+        case 1:
+          return <HalfFilledStar dimension={dimension}/>;
+        case 2:
+          return <FilledStar dimension={dimension}/>;
+        default:
+          return <EmptyStar dimension={dimension}/>;
+      }
+    },
+    [dimension]
+  );
 
   /**
    * Determines whether the right half of a star was clicked.
@@ -84,7 +85,7 @@ export default function StarRating({
     const hasHalfFilledStar = untilIndex - flooredUntilIndex > 0;
 
     const newStarsState: number[] = Array.from(
-      { length: starsLength },
+      {length: starsLength},
       (_, index) => {
         return index < flooredUntilIndex ? 2 : 0;
       },
@@ -112,7 +113,7 @@ export default function StarRating({
     setStarsState(newStarsState);
 
   const updateLastClickedUntilIndexState = (
-    newLastClickedUntilIndexState: number | undefined,
+    newLastClickedUntilIndexState: number | null,
   ) => setLastClickedUntilIndexState(newLastClickedUntilIndexState);
 
   const handleStarsStateUpdate = (untilIndex: number) => {
@@ -120,7 +121,7 @@ export default function StarRating({
 
     if (lastClickedUntilIndexState === untilIndex) {
       resetStarsState();
-      updateLastClickedUntilIndexState(undefined);
+      updateLastClickedUntilIndexState(null);
       return;
     }
 
@@ -144,23 +145,37 @@ export default function StarRating({
 
   const handleMouseLeave = () => {
     updateStarsState(previousStarsState);
-    console.log("leave", previousStarsState);
+    console.log("handleMouseLeave");
+    setLastSide(null);
   };
 
-  const handleMouseOver = (
-    event: React.MouseEvent<HTMLElement>,
-    index: number,
-  ) => {
-    const untilIndex = getUntilIndex(event, index);
-    handleStarsStateUpdate(untilIndex);
-    console.log("enter", untilIndex);
-  };
+  // const handleMouseMove = (
+  //   event: React.MouseEvent<HTMLElement>,
+  //   index: number,
+  // ) => {
+  //   const untilIndex = getUntilIndex(event, index);
+  //   handleStarsStateUpdate(untilIndex);
+  //   console.log("enter", untilIndex);
+  // };
 
-  const debouncedHandleMouseOver = (
-    event: React.MouseEvent<HTMLElement>,
-    index: number,
-  ) => {
-    debounce(handleMouseOver(event, index), 100);
+  const [lastSide, setLastSide] = useState<"L" | "R" | null>(null);
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
+    const element = event.currentTarget as HTMLDivElement;
+    const rect = element.getBoundingClientRect();
+    const midpoint = rect.width / 2;
+    const isLeftSide = event.clientX < rect.left + midpoint;
+
+    let untilIndex: number = index;
+    if (isLeftSide && lastSide !== "L") {
+      untilIndex = index - 0.5;
+      console.log("Left", untilIndex);
+      updateStarsState(createNewStarsState(untilIndex));
+      setLastSide("L");
+    } else if (!isLeftSide && lastSide !== "R") {
+      console.log("Right", untilIndex);
+      updateStarsState(createNewStarsState(untilIndex));
+      setLastSide("R");
+    }
   };
 
   // Stars state
@@ -172,8 +187,8 @@ export default function StarRating({
 
   // Last clicked index state
   const [lastClickedUntilIndexState, setLastClickedUntilIndexState] = useState<
-    number | undefined
-  >();
+    number | null
+  >(null);
 
   // Build the star elements from stars state
   const drawStars = () => {
@@ -181,7 +196,7 @@ export default function StarRating({
       return (
         <div
           key={index}
-          onMouseOver={(event) => handleMouseOver(event, index + 1)}
+          onMouseMove={(event) => handleMouseMove(event, index + 1)}
           onMouseLeave={handleMouseLeave}
           onClick={(event) => handleClick(event, index + 1)}
         >
@@ -191,5 +206,5 @@ export default function StarRating({
     });
   };
 
-  return <div className="flex w-fit h-fit gap-[1rem]">{drawStars()}</div>;
+  return <div className="flex w-fit h-fit">{drawStars()}</div>;
 }
