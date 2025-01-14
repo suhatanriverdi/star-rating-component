@@ -1,8 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 svg {
     max-width: 100%;
-    cursor: pointer;
 }
+
+/* Yıldıza tıklanınca glow efecti aniasyonu ekle TODO */

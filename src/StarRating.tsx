@@ -10,13 +10,21 @@ export type StarRatingProps = {
    * Defaults to 5.
    */
   starsLength?: number;
-
   /**
    * Enables or disables half-star ratings.
    * Defaults to false.
    */
   isHalfRatingEnabled?: boolean;
-
+  /**
+   * Determines whether mouse hover behavior is enabled.
+   * Defaults to true.
+   */
+  isHoverEnabled?: boolean;
+  /**
+   * If true, the component is non-interactive and only displays the rating.
+   * Defaults to false.
+   */
+  isReadOnly?: boolean;
   /**
    * The initial rating to display.
    * Should be in the range of 0 <= initialRating <= starsLength.
@@ -30,25 +38,53 @@ export type StarRatingProps = {
    * Defaults to 0.
    */
   initialRating?: number;
-
   /**
    * Dimension of the stars (width and height, in pixels).
    * Defaults to the dimension defined in the star components.
    */
   dimension?: number;
-
   /**
-   * Color of the stars.
+   * HEX Color code of the stars.
    * Defaults to the color defined in the star components.
    */
   color?: string;
+  /**
+   * Callback triggered when the rating changes.
+   *
+   * @param newRating - The new rating value.
+   */
+  getRatingValue?: () => number;
+  /**
+   * TODO Feature, Remove This Line!!!
+   * Shape of the stars.
+   * Defaults to "star". Other options might include "circle", "heart".
+   */
+
+  /**
+   * Callback function for handling rating changes.
+   *
+   * This function is triggered whenever the user updates the rating in the `StarRating` component.
+   * The parent component can pass this function to receive the updated rating and handle it accordingly.
+   *
+   * @param {number} newRating - The new rating value selected by the user.
+   * This value represents the number of stars filled, which could be a whole or half number.
+   *
+   * @example
+   * // Example usage in the parent component:
+   * const handleRatingChange = (newRating) => {
+   *   console.log("Updated rating: ", newRating);
+   * };
+   *
+   * <StarRating onRatingChange={handleRatingChange} />
+   */
+  onRatingChange?: (newRating: number) => void;
 };
 
 /**
  * StarRating Component
  *
  * A flexible and customizable star rating component that supports
- * full and half-star ratings with interactive hover and click states.
+ * full and half-star ratings with interactive hover and cick states.
  *
  * - Provides smooth transitions on hover.
  * - Dynamically updates based on user interaction.
@@ -60,9 +96,12 @@ export default function StarRating({
   starsLength = 5,
   initialRating = 0,
   isHalfRatingEnabled = initialRating % 1 !== 0,
+  isReadOnly = false,
+  isHoverEnabled = !isReadOnly,
   dimension = 30,
   color,
-}: StarRatingProps) {
+  onRatingChange,
+}: StarRatingProps): JSX.Element {
   /**
    * The following check ensures that the `initialRating` is within the valid range.
    * - If `initialRating` is less than 0 or greater than `starsLength`, an error is thrown to prevent invalid ratings.
@@ -72,6 +111,30 @@ export default function StarRating({
   if (initialRating > starsLength || initialRating < 0) {
     throw new Error(
       "initialRating must be within 0 <= initialRating <= starsLength",
+    );
+  }
+
+  /**
+   * Ensures `starsLength` is greater than 0.
+   * Throws an error if `starsLength` is less than or equal to 0 to prevent invalid ratings.
+   *
+   * @throws {Error} If `starsLength` is less than or equal to 0.
+   */
+  if (starsLength <= 0) {
+    throw new Error(
+      "starsLength must be greater than 0 to ensure valid ratings.",
+    );
+  }
+
+  /**
+   * The following check ensures that `isHoverEnabled` is not true if `isReadOnly` is true.
+   * - Hover interactions should be disabled when the component is read-only.
+   *
+   * @throws {Error} If `isHoverEnabled` is true while `isReadOnly` is also true.
+   */
+  if (isReadOnly && isHoverEnabled) {
+    throw new Error(
+      "isHoverEnabled cannot be true when isReadOnly is enabled. Please disable hover interactions for read-only mode.",
     );
   }
 
@@ -186,6 +249,12 @@ export default function StarRating({
     newLastClickedUntilIndexState: number | null,
   ) => setLastClickedUntilIndexState(newLastClickedUntilIndexState);
 
+  const handleRatingChange = (newRating: number) => {
+    if (onRatingChange) {
+      onRatingChange(newRating);
+    }
+  };
+
   /**
    * Handles updates to the stars' state when a star is clicked.
    *
@@ -197,12 +266,14 @@ export default function StarRating({
     if (lastClickedUntilIndexState === untilIndex) {
       resetStarsState();
       updateLastClickedUntilIndexState(null);
+      handleRatingChange(0);
       return;
     }
 
     const newStarsState = createNewStarsState(untilIndex);
     updateStarsState(newStarsState);
     updateLastClickedUntilIndexState(untilIndex);
+    handleRatingChange(untilIndex);
   };
 
   /**
@@ -215,7 +286,7 @@ export default function StarRating({
   const getUntilIndex = (
     event: React.MouseEvent<HTMLElement>,
     index: number,
-  ) => {
+  ): number => {
     const hasHalfFilledStar = isHalfRatingEnabled && isHalfClicked(event);
     return hasHalfFilledStar ? index - 0.5 : index;
   };
@@ -306,17 +377,24 @@ export default function StarRating({
    *
    * @returns {JSX.Element[]} Array of star components.
    */
-  const drawStars = () => {
+  const drawStars = (): JSX.Element[] => {
     const paddingValue = memoizedDimension ? memoizedDimension * 0.004 : 0.5;
     return starsState.map((star, index) => (
       <div
         style={{
           padding: `${paddingValue}rem`,
+          cursor: isReadOnly ? "not-allowed" : "pointer",
         }}
         key={index}
-        onMouseMove={(event) => handleMouseMove(event, index + 1)}
-        onMouseLeave={handleMouseLeave}
-        onClick={(event) => handleClick(event, index + 1)}
+        onMouseMove={
+          isHoverEnabled
+            ? (event) => handleMouseMove(event, index + 1)
+            : undefined
+        }
+        onMouseLeave={isHoverEnabled ? handleMouseLeave : undefined}
+        onClick={
+          isReadOnly ? undefined : (event) => handleClick(event, index + 1)
+        }
       >
         {getStarSVGs(star)}
       </div>
@@ -332,7 +410,13 @@ export default function StarRating({
   };
 
   return (
-    <div className="flex w-fit" style={{ maxWidth: `${memoizedDimension}rem` }}>
+    <div
+      style={{
+        display: "flex",
+        width: "fit-content",
+        maxWidth: `${memoizedDimension}rem`,
+      }}
+    >
       {drawStars()}
     </div>
   );
