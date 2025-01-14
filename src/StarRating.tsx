@@ -33,6 +33,13 @@ export type StarRatingProps = {
    * Can be decimal or integer number
    */
   dimension?: number;
+  
+  /**
+   * The initial dimension of the stars.
+   * Will be used for both width and height symmetrically
+   * Can be decimal or integer number
+   */
+  color?: string;
 };
 
 /*
@@ -40,12 +47,16 @@ export type StarRatingProps = {
  * initialRating, ve starsLength
  * Buna bir düzeltme getir sınırlama koy
  * İnsanlart giremesien range dışındaysa
+ *
+ * BUGS
+ * Initial yıldıza tıklayınca olmuyor ikinci kez tıklayınca oluyor
  * */
 export default function StarRating({
   starsLength = 5,
   isHalfRatingEnabled = false,
   initialRating = 0,
   dimension,
+  color
 }: StarRatingProps) {
   // Return the requested star element based on the given starID
   // 0: Empty
@@ -55,11 +66,11 @@ export default function StarRating({
     (starID: number) => {
       switch (starID) {
         case 1:
-          return <HalfFilledStar dimension={dimension} />;
+          return <HalfFilledStar color={color} dimension={dimension} />;
         case 2:
-          return <FilledStar dimension={dimension} />;
+          return <FilledStar color={color} dimension={dimension} />;
         default:
-          return <EmptyStar dimension={dimension} />;
+          return <EmptyStar color={color} dimension={dimension} />;
       }
     },
     [dimension]
@@ -146,7 +157,6 @@ export default function StarRating({
 
   const handleMouseLeave = () => {
     updateStarsState(previousStarsState);
-    console.log("handleMouseLeave");
     setLastSide(null);
   };
 
@@ -167,11 +177,9 @@ export default function StarRating({
     const isLeftSide = event.clientX < rect.left + midpoint;
 
     if (isLeftSide && lastSide !== "L") {
-      console.log("Left", index - 0.5);
       updateStarsState(createNewStarsState(index - 0.5));
       setLastSide("L");
     } else if (!isLeftSide && lastSide !== "R") {
-      console.log("Right", index);
       updateStarsState(createNewStarsState(index));
       setLastSide("R");
     }
@@ -187,13 +195,18 @@ export default function StarRating({
   // Last clicked index state
   const [lastClickedUntilIndexState, setLastClickedUntilIndexState] = useState<
     number | null
-  >(null);
+  >(initialRating);
 
   // Build the star elements from stars state
   const drawStars = () => {
+    const paddingValue = dimension ? (dimension * 0.004) : 0.5;
     return starsState.map((star: number, index: number) => {
       return (
         <div
+          style={{
+            padding: `${paddingValue}rem`,
+          }}
+          className={`transition-all duration-150 hover:scale-125`}
           key={index}
           onMouseMove={(event) => handleMouseMove(event, index + 1)}
           onMouseLeave={handleMouseLeave}
@@ -205,5 +218,5 @@ export default function StarRating({
     });
   };
 
-  return <div className="flex w-fit h-fit">{drawStars()}</div>;
+  return <div className="flex w-fit">{drawStars()}</div>;
 }

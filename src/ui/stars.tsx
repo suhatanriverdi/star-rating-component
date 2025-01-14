@@ -1,5 +1,3 @@
-import React from "react";
-
 type StarProps = React.SVGProps<SVGSVGElement> & {
   color?: string;
   dimension?: number;
@@ -7,6 +5,7 @@ type StarProps = React.SVGProps<SVGSVGElement> & {
 
 const defaultColor = "#FFC107";
 const defaultDimension = 128;
+
 
 export const EmptyStar: React.FC<StarProps> = ({
   color = defaultColor,
