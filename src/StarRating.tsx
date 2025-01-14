@@ -10,21 +10,25 @@ export type StarRatingProps = {
    * Defaults to 5.
    */
   starsLength?: number;
+
   /**
    * Enables or disables half-star ratings.
    * Defaults to false.
    */
   isHalfRatingEnabled?: boolean;
+
   /**
    * Determines whether mouse hover behavior is enabled.
    * Defaults to true.
    */
   isHoverEnabled?: boolean;
+
   /**
    * If true, the component is non-interactive and only displays the rating.
    * Defaults to false.
    */
   isReadOnly?: boolean;
+
   /**
    * The initial rating to display.
    * Should be in the range of 0 <= initialRating <= starsLength.
@@ -38,27 +42,26 @@ export type StarRatingProps = {
    * Defaults to 0.
    */
   initialRating?: number;
+
   /**
    * Dimension of the stars (width and height, in pixels).
    * Defaults to the dimension defined in the star components.
    */
   dimension?: number;
+
   /**
-   * HEX Color code of the stars.
-   * Defaults to the color defined in the star components.
+   * The HEX color code used for the stars.
+   * This property allows you to customize the color of the stars in the rating component.
+   * If not provided, the component will use the default color defined in the internal styles.
+   *
+   * Example:
+   * - "#FFD700" for gold-colored stars
+   * - "#FF0000" for red-colored stars
+   *
+   * @type {string}
+   * @default {undefined} - Defaults to the internal color setting if not specified.
    */
   color?: string;
-  /**
-   * Callback triggered when the rating changes.
-   *
-   * @param newRating - The new rating value.
-   */
-  getRatingValue?: () => number;
-  /**
-   * TODO Feature, Remove This Line!!!
-   * Shape of the stars.
-   * Defaults to "star". Other options might include "circle", "heart".
-   */
 
   /**
    * Callback function for handling rating changes.

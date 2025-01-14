@@ -1,9 +1,8 @@
 import StarRating from "./StarRating.tsx";
 
 export default function App() {
-  // Callback fonksiyonu ile rating değerini almak
-  const handleRatingChange = (newRating: number) => {
-    console.log("New Rating Value:", newRating);
+  const handleRatingChange = (currentRatingValue: number) => {
+    console.log("New Rating Value:", currentRatingValue);
   };
 
   return (
@@ -11,6 +10,7 @@ export default function App() {
       style={{
         display: "flex",
         flexDirection: "column",
+        background: "black",
       }}
     >
       {/* Test 1: Half-filled 1 star, 5-star rating */}
@@ -23,7 +23,7 @@ export default function App() {
       />
 
       <StarRating starsLength={1} initialRating={1} isReadOnly={true} />
-      <StarRating starsLength={7} onRatingChange={handleRatingChange} />
+      <StarRating starsLength={1} onRatingChange={handleRatingChange} />
       {/* Test 2: Invalid rating (13, greater than 5 stars) */}
       {/* This test will throw an error, commented out */}
       {/* <StarRating*/}
