@@ -3,6 +3,6 @@
 @tailwind utilities;
 
 svg {
-  max-width: 100%;
-  cursor: pointer;
+    max-width: 100%;
+    cursor: pointer;
 }

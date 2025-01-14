@@ -1,5 +1,5 @@
-import {EmptyStar, FilledStar, HalfFilledStar} from "./ui/stars.tsx";
-import React, {useCallback, useMemo, useState} from "react";
+import { EmptyStar, FilledStar, HalfFilledStar } from "./ui/stars.tsx";
+import React, { useCallback, useMemo, useState } from "react";
 
 /**
  * Props for the StarRating component.
@@ -57,12 +57,12 @@ export type StarRatingProps = {
  * @returns {JSX.Element} The rendered star rating component.
  */
 export default function StarRating({
-                                     starsLength = 5,
-                                     initialRating = 0,
-                                     isHalfRatingEnabled = (initialRating % 1 !== 0),
-                                     dimension,
-                                     color,
-                                   }: StarRatingProps) {
+  starsLength = 5,
+  initialRating = 0,
+  isHalfRatingEnabled = initialRating % 1 !== 0,
+  dimension = 30,
+  color,
+}: StarRatingProps) {
   /**
    * The following check ensures that the `initialRating` is within the valid range.
    * - If `initialRating` is less than 0 or greater than `starsLength`, an error is thrown to prevent invalid ratings.
@@ -70,7 +70,9 @@ export default function StarRating({
    * @throws {Error} If the initialRating is outside the valid range (0 <= initialRating <= starsLength).
    */
   if (initialRating > starsLength || initialRating < 0) {
-    throw new Error("initialRating must be within 0 <= initialRating <= starsLength");
+    throw new Error(
+      "initialRating must be within 0 <= initialRating <= starsLength",
+    );
   }
 
   /**
@@ -79,7 +81,7 @@ export default function StarRating({
    *
    * @type {string} The color to be used for the stars.
    */
-  const memoizedColor = useMemo(() => color, [color]);
+  const memoizedColor: string | undefined = useMemo(() => color, [color]);
 
   /**
    * Memoizes the `dimension` prop to avoid unnecessary recalculations when it hasn't changed.
@@ -87,7 +89,7 @@ export default function StarRating({
    *
    * @type {number} The dimension (size) of the stars in pixels.
    */
-  const memoizedDimension = useMemo(() => dimension, [dimension]);
+  const memoizedDimension: number = useMemo(() => dimension, [dimension]);
 
   /**
    * Returns the corresponding star SVG component based on the `starID`.
@@ -104,14 +106,14 @@ export default function StarRating({
     (starID: number) => {
       switch (starID) {
         case 1:
-          return <HalfFilledStar color={memoizedColor} dimension={memoizedDimension}/>;
+          return <HalfFilledStar color={memoizedColor} />;
         case 2:
-          return <FilledStar color={memoizedColor} dimension={memoizedDimension}/>;
+          return <FilledStar color={memoizedColor} />;
         default:
-          return <EmptyStar color={memoizedColor} dimension={memoizedDimension}/>;
+          return <EmptyStar color={memoizedColor} />;
       }
     },
-    [memoizedColor, memoizedDimension]
+    [memoizedColor],
   );
 
   /**
@@ -139,8 +141,8 @@ export default function StarRating({
     const hasHalfFilledStar = untilIndex - flooredUntilIndex > 0;
 
     const newStarsState: number[] = Array.from(
-      {length: starsLength},
-      (_, index) => (index < flooredUntilIndex ? 2 : 0)
+      { length: starsLength },
+      (_, index) => (index < flooredUntilIndex ? 2 : 0),
     );
 
     if (hasHalfFilledStar) {
@@ -155,7 +157,8 @@ export default function StarRating({
    *
    * @returns {number[]} The initial state of the stars.
    */
-  const initializeStarsState = (): number[] => createNewStarsState(initialRating);
+  const initializeStarsState = (): number[] =>
+    createNewStarsState(initialRating);
 
   /**
    * Resets the state of the stars to empty.
@@ -180,7 +183,7 @@ export default function StarRating({
    * @param {number | null} newLastClickedUntilIndexState - The new last clicked index.
    */
   const updateLastClickedUntilIndexState = (
-    newLastClickedUntilIndexState: number | null
+    newLastClickedUntilIndexState: number | null,
   ) => setLastClickedUntilIndexState(newLastClickedUntilIndexState);
 
   /**
@@ -211,7 +214,7 @@ export default function StarRating({
    */
   const getUntilIndex = (
     event: React.MouseEvent<HTMLElement>,
-    index: number
+    index: number,
   ) => {
     const hasHalfFilledStar = isHalfRatingEnabled && isHalfClicked(event);
     return hasHalfFilledStar ? index - 0.5 : index;
@@ -233,7 +236,7 @@ export default function StarRating({
    */
   const handleMouseMove = (
     event: React.MouseEvent<HTMLDivElement>,
-    index: number
+    index: number,
   ) => {
     if (!isHalfRatingEnabled) {
       updateStarsState(createNewStarsState(index));
@@ -254,7 +257,7 @@ export default function StarRating({
     }
   };
 
-// States
+  // States
 
   /**
    * `starsState` holds the current state of the stars, where each star is represented
@@ -274,7 +277,8 @@ export default function StarRating({
    *
    * It is initialized with the current value of `starsState` on component mount.
    */
-  const [previousStarsState, setPreviousStarsState] = useState<number[]>(starsState);
+  const [previousStarsState, setPreviousStarsState] =
+    useState<number[]>(starsState);
 
   /**
    * `lastClickedUntilIndexState` stores the index of the last star that was clicked by
@@ -284,8 +288,9 @@ export default function StarRating({
    * It is initialized with the value of `initialRating`, representing the initial rating
    * state of the stars when the component is mounted.
    */
-  const [lastClickedUntilIndexState, setLastClickedUntilIndexState] =
-    useState<number | null>(initialRating);
+  const [lastClickedUntilIndexState, setLastClickedUntilIndexState] = useState<
+    number | null
+  >(initialRating);
 
   /**
    * `lastSide` keeps track of the last side of a star (left or right) that was hovered over
@@ -302,7 +307,7 @@ export default function StarRating({
    * @returns {JSX.Element[]} Array of star components.
    */
   const drawStars = () => {
-    const paddingValue = dimension ? dimension * 0.004 : 0.5;
+    const paddingValue = memoizedDimension ? memoizedDimension * 0.004 : 0.5;
     return starsState.map((star, index) => (
       <div
         style={{
@@ -326,5 +331,9 @@ export default function StarRating({
     setLastSide(null);
   };
 
-  return <div className="flex w-fit">{drawStars()}</div>;
+  return (
+    <div className="flex w-fit" style={{ maxWidth: `${memoizedDimension}rem` }}>
+      {drawStars()}
+    </div>
+  );
 }

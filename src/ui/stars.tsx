@@ -1,23 +1,17 @@
+import React from "react";
+
 type StarProps = React.SVGProps<SVGSVGElement> & {
   color?: string;
-  dimension?: number;
 };
 
 const defaultColor = "#FFC107";
-const defaultDimension = 128;
 
-
-export const EmptyStar: React.FC<StarProps> = ({
-  color = defaultColor,
-  dimension,
-}) => {
-  const size = dimension ? dimension : defaultDimension;
-
+export const EmptyStar: React.FC<StarProps> = ({ color = defaultColor }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
+      width="100%"
+      height="100%"
       fill={color}
       viewBox="0 0 16 16"
     >
@@ -28,15 +22,12 @@ export const EmptyStar: React.FC<StarProps> = ({
 
 export const HalfFilledStar: React.FC<StarProps> = ({
   color = defaultColor,
-  dimension,
 }) => {
-  const size = dimension ? dimension : defaultDimension;
-
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
+      width="100%"
+      height="100%"
       fill={color}
       viewBox="0 0 16 16"
     >
@@ -45,17 +36,12 @@ export const HalfFilledStar: React.FC<StarProps> = ({
   );
 };
 
-export const FilledStar: React.FC<StarProps> = ({
-  color = defaultColor,
-  dimension,
-}) => {
-  const size = dimension ? dimension : defaultDimension;
-
+export const FilledStar: React.FC<StarProps> = ({ color = defaultColor }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
+      width="100%"
+      height="100%"
       fill={color}
       viewBox="0 0 16 16"
     >
