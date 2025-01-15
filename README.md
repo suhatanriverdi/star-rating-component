@@ -1,50 +1,208 @@
-# React + TypeScript + Vite
+# React Star Rating Component
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A highly customizable, accessible, and lightweight star rating component for React applications. Supports both full and half-star ratings with extensive customization options.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- ⭐ Configurable number of stars
+- 🌟 Support for half-star ratings
+- ✨ Interactive hover effects
+- 🔒 Read-only mode support
+- 🎨 Customizable star colors
+- 📐 Adjustable star sizes
+- ♿ Fully accessible (ARIA-compliant)
+- 🎯 TypeScript support
+- 🪶 Lightweight (~3KB gzipped)
 
-## Expanding the ESLint configuration
+## 📦 Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+Using npm:
+```bash
+npm install @scope/react-star-rating
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+Using pnpm:
+```bash
+pnpm add @scope/react-star-rating
 ```
+
+Using yarn:
+```bash
+yarn add @scope/react-star-rating
+```
+
+## 💻 Basic Usage
+
+```tsx
+import { StarRating } from '@scope/react-star-rating';
+
+function App() {
+  const handleRatingChange = (rating: number) => {
+    console.log(`New rating: ${rating}`);
+  };
+
+  return (
+    <StarRating
+      initialRating={3.5}
+      onRatingChange={handleRatingChange}
+    />
+  );
+}
+```
+
+## ⚙️ Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `starsLength` | `number` | `5` | Number of stars to display |
+| `isHalfRatingEnabled` | `boolean` | `false` | Enable half-star ratings |
+| `isHoverEnabled` | `boolean` | `true` | Enable hover effects |
+| `isReadOnly` | `boolean` | `false` | Make the rating read-only |
+| `initialRating` | `number` | `0` | Initial rating value |
+| `dimension` | `number` | `24` | Size of stars in pixels |
+| `color` | `string` | `"#FFD700"` | Star color in HEX format |
+| `onRatingChange` | `(rating: number) => void` | - | Rating change callback |
+
+## 📝 Examples
+
+### Basic Star Rating
+```tsx
+<StarRating
+  starsLength={5}
+  initialRating={0}
+  onRatingChange={(rating) => console.log(rating)}
+/>
+```
+
+### Half-Star Rating
+```tsx
+<StarRating
+  starsLength={5}
+  initialRating={3.5}
+  isHalfRatingEnabled={true}
+  onRatingChange={(rating) => console.log(rating)}
+/>
+```
+
+### Read-only Rating Display
+```tsx
+<StarRating
+  starsLength={5}
+  initialRating={4}
+  isReadOnly={true}
+/>
+```
+
+### Custom Styled Rating
+```tsx
+<StarRating
+  starsLength={5}
+  initialRating={5}
+  dimension={40}
+  color="#FF5733"
+  isHoverEnabled={true}
+/>
+```
+
+### Disabled Hover Effects
+```tsx
+<StarRating
+  starsLength={5}
+  initialRating={3}
+  isHoverEnabled={false}
+/>
+```
+
+## 🎯 Advanced Usage
+
+### With Form Integration
+```tsx
+import { useState } from 'react';
+import { StarRating } from '@scope/react-star-rating';
+
+function ReviewForm() {
+  const [rating, setRating] = useState(0);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Submitted rating:', rating);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label>Your Rating:</label>
+        <StarRating
+          initialRating={rating}
+          onRatingChange={setRating}
+          isHalfRatingEnabled={true}
+        />
+      </div>
+      <button type="submit">Submit Review</button>
+    </form>
+  );
+}
+```
+
+### With Dynamic Updates
+```tsx
+function DynamicRating() {
+  const [rating, setRating] = useState(0);
+
+  return (
+    <div>
+      <StarRating
+        initialRating={rating}
+        onRatingChange={setRating}
+      />
+      <p>Current rating: {rating}</p>
+      <button onClick={() => setRating(0)}>Reset</button>
+    </div>
+  );
+}
+```
+
+## 🔍 API Details
+
+### Rating Validation
+- When `isHalfRatingEnabled` is `true`, ratings can be in increments of 0.5
+- When `isHalfRatingEnabled` is `false`, only integer ratings are allowed
+- `initialRating` must be between 0 and `starsLength`
+
+### Accessibility
+The component implements ARIA attributes for accessibility:
+- `aria-label` for rating description
+- `aria-valuemin` and `aria-valuemax` for range
+- `aria-valuenow` for current rating
+- Keyboard navigation support
+
+## 🛠️ Development
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/react-star-rating.git
+
+# Install dependencies
+pnpm install
+
+# Run development server
+pnpm dev
+
+# Build the package
+pnpm build
+
+# Run tests
+pnpm test
+```
+
+## 📄 License
+
+Apache 2.0
+
+## 💖 Contributing
+
+Contributions are welcome! Please read our [contributing guidelines](CONTRIBUTING.md) to get started.
+
+---
+
+<small> Süha Tanrıverdi, 2025 </small>

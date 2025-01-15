@@ -7,25 +7,29 @@ import React, { useCallback, useMemo, useState } from "react";
 export type StarRatingProps = {
   /**
    * Total number of stars to display.
-   * Defaults to 5.
+   * @default 5
+   * @type {number}
    */
   starsLength?: number;
 
   /**
    * Enables or disables half-star ratings.
-   * Defaults to false.
+   * @default false
+   * @type {boolean}
    */
   isHalfRatingEnabled?: boolean;
 
   /**
    * Determines whether mouse hover behavior is enabled.
-   * Defaults to true.
+   * @default true
+   * @type {boolean}
    */
   isHoverEnabled?: boolean;
 
   /**
    * If true, the component is non-interactive and only displays the rating.
-   * Defaults to false.
+   * @default false
+   * @type {boolean}
    */
   isReadOnly?: boolean;
 
@@ -39,27 +43,28 @@ export type StarRatingProps = {
    * - If `isHalfRatingEnabled` is false:
    *   Integer values like 0, 1, 2, etc. are allowed.
    *
-   * Defaults to 0.
+   * @default 0
+   * @type {number}
    */
   initialRating?: number;
 
   /**
    * Dimension of the stars (width and height, in pixels).
-   * Defaults to the dimension defined in the star components.
+   * @default Depends on the dimension defined in the star components.
+   * @type {number}
    */
   dimension?: number;
 
   /**
    * The HEX color code used for the stars.
    * This property allows you to customize the color of the stars in the rating component.
-   * If not provided, the component will use the default color defined in the internal styles.
    *
    * Example:
    * - "#FFD700" for gold-colored stars
    * - "#FF0000" for red-colored stars
    *
+   * @default undefined - Defaults to the internal color setting if not specified.
    * @type {string}
-   * @default {undefined} - Defaults to the internal color setting if not specified.
    */
   color?: string;
 
@@ -67,15 +72,13 @@ export type StarRatingProps = {
    * Callback function for handling rating changes.
    *
    * This function is triggered whenever the user updates the rating in the `StarRating` component.
-   * The parent component can pass this function to receive the updated rating and handle it accordingly.
    *
    * @param {number} newRating - The new rating value selected by the user.
-   * This value represents the number of stars filled, which could be a whole or half number.
    *
    * @example
    * // Example usage in the parent component:
-   * const handleRatingChange = (newRating) => {
-   *   console.log("Updated rating: ", newRating);
+   * const handleRatingChange = (newRating: number) => {
+   *    console.log("Updated rating: ", newRating);
    * };
    *
    * <StarRating onRatingChange={handleRatingChange} />
@@ -87,7 +90,7 @@ export type StarRatingProps = {
  * StarRating Component
  *
  * A flexible and customizable star rating component that supports
- * full and half-star ratings with interactive hover and cick states.
+ * full and half-star ratings with interactive hover and click states.
  *
  * - Provides smooth transitions on hover.
  * - Dynamically updates based on user interaction.
@@ -105,71 +108,46 @@ export default function StarRating({
   color,
   onRatingChange,
 }: StarRatingProps): JSX.Element {
-  /**
-   * The following check ensures that the `initialRating` is within the valid range.
-   * - If `initialRating` is less than 0 or greater than `starsLength`, an error is thrown to prevent invalid ratings.
-   *
-   * @throws {Error} If the initialRating is outside the valid range (0 <= initialRating <= starsLength).
-   */
+  // Validate initial rating within acceptable range
   if (initialRating > starsLength || initialRating < 0) {
     throw new Error(
-      "initialRating must be within 0 <= initialRating <= starsLength",
+      "initialRating must be within range: 0 <= initialRating <= starsLength.",
     );
   }
 
-  /**
-   * Ensures `starsLength` is greater than 0.
-   * Throws an error if `starsLength` is less than or equal to 0 to prevent invalid ratings.
-   *
-   * @throws {Error} If `starsLength` is less than or equal to 0.
-   */
+  // Validate that starsLength is greater than zero
   if (starsLength <= 0) {
     throw new Error(
-      "starsLength must be greater than 0 to ensure valid ratings.",
+      "starsLength must be greater than zero to ensure valid ratings.",
     );
   }
 
-  /**
-   * The following check ensures that `isHoverEnabled` is not true if `isReadOnly` is true.
-   * - Hover interactions should be disabled when the component is read-only.
-   *
-   * @throws {Error} If `isHoverEnabled` is true while `isReadOnly` is also true.
-   */
+  // Ensure hover interactions are disabled when read-only mode is enabled
   if (isReadOnly && isHoverEnabled) {
     throw new Error(
       "isHoverEnabled cannot be true when isReadOnly is enabled. Please disable hover interactions for read-only mode.",
     );
   }
 
-  /**
-   * Memoizes the `color` prop to avoid unnecessary recalculations when it hasn't changed.
-   * This optimization ensures that the component doesn't re-render due to unnecessary changes in the `color` prop.
-   *
-   * @type {string} The color to be used for the stars.
-   */
+  // Memoize color to optimize performance
   const memoizedColor: string | undefined = useMemo(() => color, [color]);
 
-  /**
-   * Memoizes the `dimension` prop to avoid unnecessary recalculations when it hasn't changed.
-   * This optimization ensures that the component doesn't re-render due to unnecessary changes in the `dimension` prop.
-   *
-   * @type {number} The dimension (size) of the stars in pixels.
-   */
+  // Memoize dimension to optimize performance
   const memoizedDimension: number = useMemo(() => dimension, [dimension]);
 
   /**
-   * Returns the corresponding star SVG component based on the `starID`.
-   * This function uses the memoized `color` and `dimension` props to ensure optimal performance
-   * by preventing unnecessary recalculations and re-renders.
-   *
-   * @param {number} starID - The identifier for the star's state.
-   * - `0` = Empty star.
-   * - `1` = Half-filled star.
-   * - `2` = Fully-filled star.
-   * @returns {JSX.Element} The corresponding star SVG component.
+   Retrieves the corresponding star SVG component based on its state identifier.
+   Utilizes memoized color and dimension for optimal performance.
+
+   @param {number} starID - Identifier for star's state:
+    - `0`: Empty star
+    - `1`: Half-filled star
+    - `2`: Fully-filled star
+
+   @returns {JSX.Element} The corresponding star SVG component based on state.
    */
   const getStarSVGs = useCallback(
-    (starID: number) => {
+    (starID: number): JSX.Element => {
       switch (starID) {
         case 1:
           return <HalfFilledStar color={memoizedColor} />;
@@ -183,10 +161,11 @@ export default function StarRating({
   );
 
   /**
-   * Determines if the left or right half of a star was clicked.
-   *
-   * @param {React.MouseEvent<HTMLElement>} event - Mouse event from the click.
-   * @returns {boolean} `true` if the left half was clicked, `false` otherwise.
+   Determines if the left or right half of a star was clicked.
+
+   @param {React.MouseEvent<HTMLElement>} event - Mouse event from click action.
+
+   @returns {boolean} `true` if left half was clicked; otherwise `false`.
    */
   const isHalfClicked = (event: React.MouseEvent<HTMLElement>): boolean => {
     const element = event.currentTarget as HTMLElement;
@@ -196,11 +175,14 @@ export default function StarRating({
   };
 
   /**
-   * Creates a new array representing the state of the stars
-   * based on the provided index.
-   *
-   * @param {number} untilIndex - The rating index up to which stars should be filled.
-   * @returns {number[]} Array representing the stars' state.
+   Creates a new array representing the state of stars based on provided index.
+
+   @param {number} untilIndex - Rating index up to which stars should be filled.
+
+   @returns {number[]} Array representing each star's state:
+    - `0`: Empty
+    - `1`: Half-filled
+    - `2`: Fully-filled
    */
   const createNewStarsState = (untilIndex: number): number[] => {
     const flooredUntilIndex = Math.floor(untilIndex);
@@ -219,15 +201,17 @@ export default function StarRating({
   };
 
   /**
-   * Initializes the state of the stars based on the `initialRating`.
-   *
-   * @returns {number[]} The initial state of the stars.
+   Initializes the state of stars based on initial rating.
+
+   @returns {number[]} The initial state of stars represented as an array.
    */
   const initializeStarsState = (): number[] =>
     createNewStarsState(initialRating);
 
   /**
-   * Resets the state of the stars to empty.
+   Resets state of all stars to empty.
+
+   @returns {void}
    */
   const resetStarsState = (): void => {
     const newEmptyStarsState = Array(starsLength).fill(0);
@@ -236,34 +220,41 @@ export default function StarRating({
   };
 
   /**
-   * Updates the stars' state in the component's state.
-   *
-   * @param {number[]} newStarsState - The new stars' state to set.
+   Updates stars' state within component's state.
+
+   @param {number[]} newStarsState - New state array representing filled/unfilled stars.
+
+   @returns {void}
    */
-  const updateStarsState = (newStarsState: number[]) =>
+  const updateStarsState = (newStarsState: number[]): void =>
     setStarsState(newStarsState);
 
   /**
-   * Updates the last clicked index in the state.
-   *
-   * @param {number | null} newLastClickedUntilIndexState - The new last clicked index.
+   Updates index of last clicked star in state.
+
+   @param {number | null} newLastClickedUntilIndexState - New last clicked index or null.
+
+   @returns {void}
    */
   const updateLastClickedUntilIndexState = (
     newLastClickedUntilIndexState: number | null,
-  ) => setLastClickedUntilIndexState(newLastClickedUntilIndexState);
+  ): void => setLastClickedUntilIndexState(newLastClickedUntilIndexState);
 
-  const handleRatingChange = (newRating: number) => {
+  // Handles changes in rating and invokes callback if provided
+  const handleRatingChange = (newRating: number): void => {
     if (onRatingChange) {
       onRatingChange(newRating);
     }
   };
 
   /**
-   * Handles updates to the stars' state when a star is clicked.
-   *
-   * @param {number} untilIndex - The index up to which stars should be filled.
+   Updates stars' state upon star click event.
+
+   @param {number} untilIndex - Index up to which stars should be filled.
+
+   @returns {void}
    */
-  const handleStarsStateUpdate = (untilIndex: number) => {
+  const handleStarsStateUpdate = (untilIndex: number): void => {
     setPreviousStarsState(starsState);
 
     if (lastClickedUntilIndexState === untilIndex) {
@@ -280,11 +271,12 @@ export default function StarRating({
   };
 
   /**
-   * Computes the index up to which stars should be filled based on user interaction.
-   *
-   * @param {React.MouseEvent<HTMLElement>} event - Mouse event from the interaction.
-   * @param {number} index - The star's index.
-   * @returns {number} The computed index.
+   Computes index up to which stars should be filled based on user interaction.
+
+   @param {React.MouseEvent<HTMLElement>} event - Mouse event from interaction.
+   @param {number} index - Index of clicked star.
+
+   @returns {number} Computed index for filling stars based on click position.
    */
   const getUntilIndex = (
     event: React.MouseEvent<HTMLElement>,
@@ -295,23 +287,33 @@ export default function StarRating({
   };
 
   /**
-   * Handles click events on stars to update the rating.
-   *
-   * @param {React.MouseEvent<HTMLElement>} event - The click event.
-   * @param {number} index - The index of the clicked star.
+   Handles click events on stars to update rating.
+
+   @param {React.MouseEvent<HTMLElement>} event - Click event from user interaction.
+   @param {number} index - Index of clicked star.
+
+   @returns {void}
    */
-  const handleClick = (event: React.MouseEvent<HTMLElement>, index: number) => {
+  const handleClick = (
+    event: React.MouseEvent<HTMLElement>,
+    index: number,
+  ): void => {
     const untilIndex = getUntilIndex(event, index);
     handleStarsStateUpdate(untilIndex);
   };
 
   /**
-   * Handles hover events to visually update stars based on interaction.
+   Handles hover events to visually update stars based on interaction.
+
+   @param {React.MouseEvent<HTMLDivElement>} event - Mouse move event from user interaction.
+   @param {number} index - Index of hovered star.
+
+   @returns {void}
    */
   const handleMouseMove = (
     event: React.MouseEvent<HTMLDivElement>,
     index: number,
-  ) => {
+  ): void => {
     if (!isHalfRatingEnabled) {
       updateStarsState(createNewStarsState(index));
       return;
@@ -320,6 +322,8 @@ export default function StarRating({
     const element = event.currentTarget as HTMLDivElement;
     const rect = element.getBoundingClientRect();
     const midpoint = rect.width / 2;
+
+    // Determine which side of a star was hovered over
     const isLeftSide = event.clientX < rect.left + midpoint;
 
     if (isLeftSide && lastSide !== "L") {
@@ -331,57 +335,44 @@ export default function StarRating({
     }
   };
 
-  // States
+  // State Management
 
   /**
-   * `starsState` holds the current state of the stars, where each star is represented
-   * by a number: 0 = Empty, 1 = Half-filled, 2 = Fully-filled.
-   *
-   * This state is used to dynamically render the stars based on user interaction.
-   *
-   * It is initialized with the value returned from `initializeStarsState()`, which
-   * is based on the `initialRating`.
+   * Holds current state of stars where each star's status is represented by a number:
+   * `0` for Empty, `1` for Half-filled, and `2` for Fully-filled.
+   * Initialized with value returned from initializeStarsState().
    */
   const [starsState, setStarsState] = useState<number[]>(initializeStarsState);
 
   /**
-   * `previousStarsState` stores the previous state of the stars before the user interacts
-   * with them. This allows for resetting to the prior state if necessary (for example,
-   * when the user clicks the same rating to clear it).
-   *
-   * It is initialized with the current value of `starsState` on component mount.
+   * Stores previous state of stars before user interaction allowing reset if necessary.
+   * Initialized with current value of starsState at mount time.
    */
   const [previousStarsState, setPreviousStarsState] =
     useState<number[]>(starsState);
 
   /**
-   * `lastClickedUntilIndexState` stores the index of the last star that was clicked by
-   * the user. This helps to track the last interaction, enabling the logic to toggle
-   * the stars back to their previous state if the same rating is clicked again.
-   *
-   * It is initialized with the value of `initialRating`, representing the initial rating
-   * state of the stars when the component is mounted.
+   * Tracks last clicked index by user enabling toggle logic for same rating clicks.
+   * Initialized with value of initialRating at mount time.
    */
   const [lastClickedUntilIndexState, setLastClickedUntilIndexState] = useState<
     number | null
   >(initialRating);
 
   /**
-   * `lastSide` keeps track of the last side of a star (left or right) that was hovered over
-   * when half-star rating is enabled. This helps to determine whether the user is interacting
-   * with the left or right side of a star for finer control of the half-star rating.
-   *
-   * It is initialized as `null`, which represents no side being selected at the start.
+   * Keeps track of last side hovered over when half-star ratings are enabled
+   * aiding finer control over half-star selections. Initialized as null indicating no side selected at start.
    */
   const [lastSide, setLastSide] = useState<"L" | "R" | null>(null);
 
   /**
-   * Renders the stars as interactive elements.
-   *
-   * @returns {JSX.Element[]} Array of star components.
+   * Renders interactive star elements based on current state.
+
+   * @returns {JSX.Element[]} Array of rendered star components as JSX elements.
    */
   const drawStars = (): JSX.Element[] => {
     const paddingValue = memoizedDimension ? memoizedDimension * 0.004 : 0.5;
+
     return starsState.map((star, index) => (
       <div
         style={{
@@ -405,9 +396,11 @@ export default function StarRating({
   };
 
   /**
-   * Handles mouse leave to reset hover state.
+   * Resets hover state upon mouse leave action.
+
+   * @returns {void}
    */
-  const handleMouseLeave = () => {
+  const handleMouseLeave = (): void => {
     updateStarsState(previousStarsState);
     setLastSide(null);
   };
